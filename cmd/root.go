@@ -12,7 +12,7 @@ var verbose bool
 
 var rootCmd = &cobra.Command{
 	Use:   "gasper",
-	Short: "Gasper lets you backup files in a distributed manner using Shamir's Secret Sharing",
+	Short: "Gasper lets you store files in a distributed manner on all sorts of different stores",
 	Long: "Backup your most sacred files by splitting and deploying them on different destinations.\n" +
 		"Retrieve them at any point, given only a portion of the original destinations being available.",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
