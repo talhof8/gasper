@@ -18,15 +18,17 @@ import (
 
 // todo: more elegant and efficient way to read & write big files.
 
-// Gasper lets you store, load, and delete files in a multi-part, distributed manner, based on Shamir's Secret Sharing.
+// Gasper lets you store, load, and delete files in a multi-part, distributed manner, using on Shamir's Secret Sharing.
 // It holds a list of stores being used for distribution, and encryption settings.
 type Gasper struct {
+	logger    *zap.Logger // todo: make struct logger-agnostic
 	stores    []storesPkg.Store
 	encryptor *encryption.Encryptor
 }
 
-func NewGasper(stores []storesPkg.Store, encryptionSettings *encryption.Settings) *Gasper {
+func NewGasper(logger *zap.Logger, stores []storesPkg.Store, encryptionSettings *encryption.Settings) *Gasper {
 	return &Gasper{
+		logger:    logger,
 		stores:    stores,
 		encryptor: encryption.NewEncryptor(encryptionSettings),
 	}
@@ -103,10 +105,10 @@ func (g *Gasper) distributeShares(sharesBytes map[byte][]byte) (string, error) {
 
 		available, err := store.Available()
 		if err != nil {
-			zap.L().Warn("Store availability check failed", zap.String("StoreName", store.Name()))
+			g.logger.Warn("Store availability check failed", zap.String("StoreName", store.Name()))
 			continue
 		} else if !available {
-			zap.L().Debug("Skipping unavailable store", zap.String("StoreName", store.Name()))
+			g.logger.Debug("Skipping unavailable store", zap.String("StoreName", store.Name()))
 			continue
 		}
 
@@ -125,17 +127,17 @@ func (g *Gasper) collectShares(fileID string) (map[byte][]byte, error) {
 	for _, store := range g.stores {
 		available, err := store.Available()
 		if err != nil {
-			zap.L().Warn("Store availability check failed", zap.String("StoreName", store.Name()))
+			g.logger.Warn("Store availability check failed", zap.String("StoreName", store.Name()))
 			continue
 		} else if !available {
-			zap.L().Debug("Skipping unavailable store", zap.String("StoreName", store.Name()))
+			g.logger.Debug("Skipping unavailable store", zap.String("StoreName", store.Name()))
 			continue
 		}
 
 		share, err := store.Get(fileID)
 		if err != nil {
 			if err == storage.ErrShareNotExists {
-				zap.L().Debug("Share for file doesn't exist in this store, trying the next one",
+				g.logger.Debug("Share for file doesn't exist in this store, trying the next one",
 					zap.String("StoreName", store.Name()))
 				continue
 			}
