@@ -22,7 +22,7 @@ func init() {
 		"file id to retrieve (required)")
 	retrieveCmd.PersistentFlags().StringVarP(&destination, "destination", "d", "",
 		"where to save the retrieved file (required)")
-	retrieveCmd.PersistentFlags().StringVarP(&checksum, "checksum", "c", "",
+	retrieveCmd.PersistentFlags().StringVarP(&checksum, "checksum", "m", "",
 		"checksum of the shared file (required)")
 	retrieveCmd.PersistentFlags().BoolVarP(&decryptionTurnedOn, "encrypt", "e", false,
 		"whether file was encrypted before storing it (default: false)")
@@ -42,14 +42,14 @@ func init() {
 
 var retrieveCmd = &cobra.Command{
 	Use:   "retrieve",
-	Short: "Retrieves a file",
-	Long:  "Retrieves a file from the provided stores",
+	Short: "Retrieve a file",
+	Long:  "Retrieve a file from the provided stores",
 	Run: func(cmd *cobra.Command, args []string) {
 		if decryptionTurnedOn && decryptionSalt == "" {
 			zap.L().Fatal("Decryption salt is required when decryption mode is turned on")
 		}
 
-		gasper := pkg.NewGasper([]storesPkg.Store{}, &encryption.Settings{
+		gasper := pkg.NewGasper(extractStores(), &encryption.Settings{
 			TurnedOn: decryptionTurnedOn,
 			Salt:     decryptionSalt,
 		})
@@ -65,20 +65,14 @@ var retrieveCmd = &cobra.Command{
 			store := store
 			storeName := store.Name()
 
-			zap.L().Debug("Check store availability", zap.String("StoreName", storeName))
-			available, err := store.Available()
-			if err != nil {
-				zap.L().Warn("Store availability check failed", zap.String("StoreName", storeName))
-				continue
-			} else if !available {
-				zap.L().Debug("Skipping unavailable store", zap.String("StoreName", storeName))
+			if skip := checkStoreAvailability(store); skip {
 				continue
 			}
 
 			zap.L().Debug("Available! Search share in store", zap.String("StoreName", storeName))
 			share, err := store.Get(fileID)
 			if err != nil {
-				if err == pkg.ErrShareNotExists {
+				if err == storesPkg.ErrShareNotExists {
 					zap.L().Debug("No match found in store, trying the next one", zap.String("StoreName",
 						storeName))
 					continue
@@ -94,6 +88,10 @@ var retrieveCmd = &cobra.Command{
 
 		if len(sharedFile.Shares) == 0 {
 			zap.L().Warn("No shares found for requested file ID", zap.String("FileID", fileID))
+			return
+		} else if len(sharedFile.Shares) < int(minSharesThreshold) {
+			zap.L().Warn("Didn't find enough shares", zap.Int8("Need", minSharesThreshold),
+				zap.Int("Got", len(sharedFile.Shares)))
 			return
 		}
 

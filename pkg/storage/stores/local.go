@@ -2,7 +2,6 @@ package stores
 
 import (
 	"fmt"
-	"github.com/gasper/pkg"
 	"github.com/gasper/pkg/shares"
 	"github.com/pkg/errors"
 	"io/ioutil"
@@ -11,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 )
+
+const TypeLocalStore = "local"
 
 // Stores files in a local directory,
 // Note: needs to get an absolute path.
@@ -30,10 +31,13 @@ func (ls *LocalStore) Name() string {
 
 func (ls *LocalStore) Available() (bool, error) {
 	_, err := os.Stat(ls.directoryPath)
-	if err == nil {
-		return true, nil
+	if err != nil {
+		if os.IsNotExist(err) {
+			return false, nil
+		}
+		return false, err
 	}
-	return false, err
+	return true, err
 }
 
 func (ls *LocalStore) Put(share *shares.Share) error {
@@ -87,9 +91,9 @@ func (ls *LocalStore) findFileByID(fileID string) (string, error) {
 	}
 
 	if len(matches) == 0 {
-		return "", pkg.ErrShareNotExists
+		return "", ErrShareNotExists
 	} else if len(matches) > 1 {
-		return "", pkg.ErrMoreThanOneMatch
+		return "", ErrMoreThanOneMatch
 	}
 
 	return matches[0], nil

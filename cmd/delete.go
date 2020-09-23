@@ -21,10 +21,10 @@ func init() {
 
 var deleteCmd = &cobra.Command{
 	Use:   "delete",
-	Short: "Deletes a file",
-	Long:  "Deletes a file from the provided stores",
+	Short: "Delete a file",
+	Long:  "Delete a file from the provided stores",
 	Run: func(cmd *cobra.Command, args []string) {
-		gasper := pkg.NewGasper([]storesPkg.Store{}, &encryption.Settings{
+		gasper := pkg.NewGasper(extractStores(), &encryption.Settings{
 			TurnedOn: decryptionTurnedOn,
 			Salt:     decryptionSalt,
 		})
@@ -36,19 +36,13 @@ var deleteCmd = &cobra.Command{
 			store := store
 			storeName := store.Name()
 
-			zap.L().Debug("Check store availability", zap.String("StoreName", storeName))
-			available, err := store.Available()
-			if err != nil {
-				zap.L().Warn("Store availability check failed", zap.String("StoreName", storeName))
-				continue
-			} else if !available {
-				zap.L().Debug("Skipping unavailable store", zap.String("StoreName", storeName))
+			if skip := checkStoreAvailability(store); skip {
 				continue
 			}
 
 			zap.L().Debug("Available! Delete file from store", zap.String("StoreName", storeName))
 			if err := store.Delete(fileID); err != nil {
-				if err == pkg.ErrShareNotExists {
+				if err == storesPkg.ErrShareNotExists {
 					zap.L().Debug("No match found in store, trying the next one", zap.String("StoreName",
 						storeName))
 					continue
@@ -67,6 +61,7 @@ var deleteCmd = &cobra.Command{
 			return
 		}
 
-		zap.L().Info("File shares deleted successfully.", zap.String("FileID", fileID))
+		zap.L().Info("File shares deleted successfully.", zap.String("FileID", fileID),
+			zap.Int("DeletedShares", deletedShares))
 	},
 }

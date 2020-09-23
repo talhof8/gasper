@@ -19,10 +19,10 @@ var (
 func init() {
 	storeCmd.PersistentFlags().StringVarP(&filePath, "file", "f", "",
 		"file to store (required)")
-	storeCmd.PersistentFlags().Int8VarP(&shareCount, "share-count", "c", 3,
-		"share count (default: 3)")
+	storeCmd.PersistentFlags().Int8VarP(&shareCount, "share-count", "a", 2,
+		"share count (default: 2)")
 	storeCmd.PersistentFlags().Int8VarP(&minSharesThreshold, "shares-threshold", "t", 2,
-		"threshold of minimum shares to use when restoring file (default: 2)")
+		"threshold of minimum shares which can be used retrieving file (default: 2)")
 	storeCmd.PersistentFlags().BoolVarP(&encryptionTurnedOn, "encrypt", "e", false,
 		"whether to encrypt file (AES) before storing it (default: false)")
 	storeCmd.PersistentFlags().StringVarP(&encryptionSalt, "salt", "s", "",
@@ -46,7 +46,7 @@ var storeCmd = &cobra.Command{
 			zap.L().Fatal("Encryption salt is required when encryption mode is turned on")
 		}
 
-		gasper := pkg.NewGasper([]storesPkg.Store{}, &encryption.Settings{
+		gasper := pkg.NewGasper(extractStores(), &encryption.Settings{
 			TurnedOn: encryptionTurnedOn,
 			Salt:     encryptionSalt,
 		})
@@ -57,23 +57,35 @@ var storeCmd = &cobra.Command{
 			zap.L().Fatal("Failed to get file shares", zap.Error(err))
 		}
 
-		zap.L().Info("Put shares in stores")
+		zap.L().Info("Check general stores availability")
 		stores := gasper.Stores()
+		availableStores := make([]storesPkg.Store, 0, len(stores))
+		for _, store := range stores {
+			if skip := checkStoreAvailability(store); skip {
+				continue
+			}
+
+			availableStores = append(availableStores, store)
+		}
+
+		availableStoresCount := len(availableStores)
+		if int(minSharesThreshold) > availableStoresCount {
+			zap.L().Error("Not enough available stores", zap.Int8("Need", minSharesThreshold),
+				zap.Int("Got", availableStoresCount), zap.Int8("Recommended", shareCount))
+			return
+		}
+
+		zap.L().Info("Put shares in stores")
 		i := 0
 		for _, share := range sharedFile.Shares {
+			if i > len(stores)-1 {
+				zap.L().Error("All stores exhausted")
+				return
+			}
+
 			store := stores[i]
 			storeName := store.Name()
 			i++
-
-			zap.L().Debug("Check store availability", zap.String("StoreName", storeName))
-			available, err := store.Available()
-			if err != nil {
-				zap.L().Warn("Store availability check failed", zap.String("StoreName", storeName))
-				continue
-			} else if !available {
-				zap.L().Debug("Skipping unavailable store", zap.String("StoreName", storeName))
-				continue
-			}
 
 			zap.L().Debug("Available! Put share in store", zap.String("StoreName", storeName),
 				zap.String("ShareID", share.ID))
