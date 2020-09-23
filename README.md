@@ -1,6 +1,6 @@
 # Gasper
-Split and distribute your most sacred, sensitive files across multiple stores 
-of your choice, with only a minimum number of them needed to retrieve them back.
+Back-up your files in a distributed manner, across multiple stores of your choice. 
+Retrieve them at any point, with only a minimum number of them required for retrieval.
 
 Gasper is based on the awesome [Shamir's Secret Sharing algorithm](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing). 
 
@@ -30,7 +30,7 @@ gasper retrieve --stores-config </path/to/stores.json> --file-id <file-id> --des
 ```
 
 #### Delete
-Best effort shares deletion.
+Best effort deletion.
 ```
 gasper delete --stores-config </path/to/stores.json> --file-id <file-id> [--verbose]
 ```

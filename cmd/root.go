@@ -18,8 +18,8 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "gasper",
 	Short: "Gasper lets you store files in a distributed manner on all sorts of different stores",
-	Long: "Store your most sacred files by splitting and deploying them to different stores.\n" +
-		"Retrieve them at any point, even if only a portion of the original destinations are available.",
+	Long: "Back-up your files in a distributed manner, across multiple stores of your choice.\n" +
+		"Retrieve them at any point, with only a minimum number of them required for retrieval.",
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		logger, err := logging.NewLogger("gasper", verbose)
 		if err != nil {
