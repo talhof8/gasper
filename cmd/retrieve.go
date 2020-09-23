@@ -24,7 +24,7 @@ func init() {
 		"where to save the retrieved file (required)")
 	retrieveCmd.PersistentFlags().StringVarP(&checksum, "checksum", "m", "",
 		"checksum of the shared file (required)")
-	retrieveCmd.PersistentFlags().BoolVarP(&decryptionTurnedOn, "encrypt", "e", false,
+	retrieveCmd.PersistentFlags().BoolVarP(&decryptionTurnedOn, "decrypt", "e", false,
 		"whether file was encrypted before storing it (default: false)")
 	retrieveCmd.PersistentFlags().StringVarP(&decryptionSalt, "salt", "s", "",
 		"decryption salt (required if decryption mode is turned on)")
@@ -49,10 +49,13 @@ var retrieveCmd = &cobra.Command{
 			zap.L().Fatal("Decryption salt is required when decryption mode is turned on")
 		}
 
-		gasper := pkg.NewGasper(extractStores(), &encryption.Settings{
+		gasper, err := pkg.NewGasper(extractStores(), &encryption.Settings{
 			TurnedOn: decryptionTurnedOn,
 			Salt:     decryptionSalt,
 		})
+		if err != nil {
+			zap.L().Fatal("Failed to initialize Gasper", zap.Error(err))
+		}
 
 		sharedFile := &sharesPkg.SharedFile{
 			ID:       fileID,

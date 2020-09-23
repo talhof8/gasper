@@ -24,10 +24,12 @@ var deleteCmd = &cobra.Command{
 	Short: "Delete a file",
 	Long:  "Delete a file from the provided stores",
 	Run: func(cmd *cobra.Command, args []string) {
-		gasper := pkg.NewGasper(extractStores(), &encryption.Settings{
-			TurnedOn: decryptionTurnedOn,
-			Salt:     decryptionSalt,
+		gasper, err := pkg.NewGasper(extractStores(), &encryption.Settings{
+			TurnedOn: false,
 		})
+		if err != nil {
+			zap.L().Fatal("Failed to initialize Gasper", zap.Error(err))
+		}
 
 		deletedShares := 0
 

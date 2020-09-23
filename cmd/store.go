@@ -26,7 +26,7 @@ func init() {
 	storeCmd.PersistentFlags().BoolVarP(&encryptionTurnedOn, "encrypt", "e", false,
 		"whether to encrypt file (AES) before storing it (default: false)")
 	storeCmd.PersistentFlags().StringVarP(&encryptionSalt, "salt", "s", "",
-		"encryption salt (required if encryption mode is turned on)")
+		"32-byte long encryption salt (required if encryption mode is turned on)")
 
 	if err := storeCmd.MarkPersistentFlagRequired("file"); err != nil {
 		panic("Failed to mark 'file' flag as required")
@@ -46,10 +46,13 @@ var storeCmd = &cobra.Command{
 			zap.L().Fatal("Encryption salt is required when encryption mode is turned on")
 		}
 
-		gasper := pkg.NewGasper(extractStores(), &encryption.Settings{
-			TurnedOn: encryptionTurnedOn,
-			Salt:     encryptionSalt,
+		gasper, err := pkg.NewGasper(extractStores(), &encryption.Settings{
+			TurnedOn: decryptionTurnedOn,
+			Salt:     decryptionSalt,
 		})
+		if err != nil {
+			zap.L().Fatal("Failed to initialize Gasper", zap.Error(err))
+		}
 
 		zap.L().Info("Getting file shares")
 		sharedFile, err := gasper.SharesFromFile(filePath, byte(shareCount), byte(minSharesThreshold))

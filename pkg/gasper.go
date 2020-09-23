@@ -23,11 +23,15 @@ type Gasper struct {
 	encryptor *encryption.Encryptor
 }
 
-func NewGasper(stores []storesPkg.Store, encryptionSettings *encryption.Settings) *Gasper {
+func NewGasper(stores []storesPkg.Store, encryptionSettings *encryption.Settings) (*Gasper, error) {
+	if err := encryptionSettings.Validate(); err != nil {
+		return nil, errors.WithMessage(err, "validate encryption settings")
+	}
+
 	return &Gasper{
 		stores:    stores,
 		encryptor: encryption.NewEncryptor(encryptionSettings),
-	}
+	}, nil
 }
 
 // Retrieves stores.
