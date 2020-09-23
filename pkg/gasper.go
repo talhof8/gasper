@@ -4,10 +4,10 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"github.com/codahale/sss"
+	petname "github.com/dustinkirkland/golang-petname"
 	"github.com/gasper/internal/encryption"
 	sharesPkg "github.com/gasper/pkg/shares"
 	storesPkg "github.com/gasper/pkg/storage/stores"
-	"github.com/lithammer/shortuuid"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"os"
@@ -15,6 +15,11 @@ import (
 )
 
 // todo: more elegant and efficient way to read & write big files.
+
+const (
+	fileIDWordCount     = 2
+	fileIDWordSeparator = "-"
+)
 
 // Gasper lets you store, load, and delete files in a multi-part, distributed manner, using on Shamir's Secret Sharing.
 // It holds a list of stores being used for distribution, and encryption settings.
@@ -45,7 +50,7 @@ func (g *Gasper) SharesFromFile(filePath string, shareCount, minSharesThreshold 
 		return nil, ErrInvalidSharesThreshold
 	}
 
-	fileID := shortuuid.New()
+	fileID := petname.Generate(fileIDWordCount, fileIDWordSeparator)
 
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
