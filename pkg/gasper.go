@@ -5,12 +5,10 @@ import (
 	"encoding/hex"
 	"github.com/codahale/sss"
 	"github.com/gasper/internal/encryption"
-	"github.com/gasper/internal/shares"
-	"github.com/gasper/pkg/storage"
+	sharesPkg "github.com/gasper/pkg/shares"
 	storesPkg "github.com/gasper/pkg/storage/stores"
 	"github.com/lithammer/shortuuid"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -21,53 +19,79 @@ import (
 // Gasper lets you store, load, and delete files in a multi-part, distributed manner, using on Shamir's Secret Sharing.
 // It holds a list of stores being used for distribution, and encryption settings.
 type Gasper struct {
-	logger    *zap.Logger // todo: make struct logger-agnostic
 	stores    []storesPkg.Store
 	encryptor *encryption.Encryptor
 }
 
-func NewGasper(logger *zap.Logger, stores []storesPkg.Store, encryptionSettings *encryption.Settings) *Gasper {
+func NewGasper(stores []storesPkg.Store, encryptionSettings *encryption.Settings) *Gasper {
 	return &Gasper{
-		logger:    logger,
 		stores:    stores,
 		encryptor: encryption.NewEncryptor(encryptionSettings),
 	}
 }
 
-// Distributes a file across stores.
-// Retrieves a unique file id which can should be used for restore, a md5 checksum of the original file, and
-// an error if one occurred.
-func (g *Gasper) Distribute(filePath string, shareCount, minSharesThreshold byte) (string, string, error) {
+// Retrieves stores.
+func (g *Gasper) Stores() []storesPkg.Store {
+	return g.stores
+}
+
+// Splits file into its shares.
+func (g *Gasper) SharesFromFile(filePath string, shareCount, minSharesThreshold byte) (*sharesPkg.SharedFile, error) {
+	if minSharesThreshold > shareCount {
+		return nil, ErrInvalidSharesThreshold
+	}
+
+	fileID := shortuuid.New()
+
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return "", "", errors.WithMessagef(err, "read file '%s'", filePath)
+		return nil, errors.WithMessagef(err, "read file '%s'", filePath)
 	}
 
 	encryptedData, err := g.encryptor.Encrypt(data)
 	if err != nil {
-		return "", "", errors.WithMessage(err, "encrypt data")
+		return nil, errors.WithMessage(err, "encrypt data")
 	}
 
 	sharesBytes, err := sss.Split(shareCount, minSharesThreshold, encryptedData)
 	if err != nil {
-		return "", "", errors.WithMessage(err, "split data to shares")
+		return nil, errors.WithMessage(err, "split data to shares")
 	}
 
-	fileID, err := g.distributeShares(sharesBytes)
-	if err != nil {
-		return "", "", err
+	shares := make([]*sharesPkg.Share, 0, len(sharesBytes))
+	for shareID, shareBytes := range sharesBytes {
+		share := &sharesPkg.Share{
+			ID:     strconv.Itoa(int(shareID)),
+			FileID: fileID,
+			Data:   shareBytes,
+		}
+
+		shares = append(shares, share)
 	}
 
 	checksum := md5.Sum(data)
-	return fileID, hex.EncodeToString(checksum[:]), nil
+
+	return &sharesPkg.SharedFile{
+		ID:       fileID,
+		Checksum: hex.EncodeToString(checksum[:]),
+		Shares:   shares,
+	}, nil
 }
 
-// Restores a file given its ID to a destination file.
-// If md5 checksum is provided, will use it to check file authenticity, otherwise will skip checksum check.
-func (g *Gasper) Restore(fileID string, destination string, originalChecksum string) error {
-	rawShares, err := g.collectShares(fileID)
-	if err != nil {
-		return err
+// Dumps shared file to a local filesystem destination.
+// If md5 checksum is set, will use it to check file authenticity, otherwise will skip checksum check.
+func (g *Gasper) DumpSharedFile(sharedFile *sharesPkg.SharedFile, destination string) error {
+	if sharedFile == nil {
+		return ErrNilSharedFile
+	}
+
+	rawShares := make(map[byte][]byte, len(sharedFile.Shares))
+	for _, share := range sharedFile.Shares {
+		shareIDInt, err := strconv.Atoi(share.ID)
+		if err != nil {
+			return errors.WithMessage(err, "convert share ID from string to int")
+		}
+		rawShares[byte(shareIDInt)] = share.Data
 	}
 
 	combinedBytes := sss.Combine(rawShares)
@@ -77,8 +101,8 @@ func (g *Gasper) Restore(fileID string, destination string, originalChecksum str
 		return errors.WithMessage(err, "decrypt data")
 	}
 
-	if originalChecksum != "" {
-		if err := g.validateChecksum(decryptedData, originalChecksum); err != nil {
+	if sharedFile.Checksum != "" {
+		if err := g.validateChecksum(decryptedData, sharedFile.Checksum); err != nil {
 			return err
 		}
 	}
@@ -87,72 +111,6 @@ func (g *Gasper) Restore(fileID string, destination string, originalChecksum str
 		return errors.WithMessagef(err, "write file '%s'", destination)
 	}
 	return nil
-}
-
-func (g *Gasper) distributeShares(sharesBytes map[byte][]byte) (string, error) {
-	fileID := shortuuid.New()
-
-	i := 0
-
-	for shareID, shareBytes := range sharesBytes {
-		share := &shares.Share{
-			ID:     strconv.Itoa(int(shareID)),
-			FileID: fileID,
-			Data:   shareBytes,
-		}
-
-		store := g.stores[i]
-
-		available, err := store.Available()
-		if err != nil {
-			g.logger.Warn("Store availability check failed", zap.String("StoreName", store.Name()))
-			continue
-		} else if !available {
-			g.logger.Debug("Skipping unavailable store", zap.String("StoreName", store.Name()))
-			continue
-		}
-
-		if err := store.Put(share); err != nil {
-			return "", errors.WithMessagef(err, "put share in store '%s'", store.Name())
-		}
-
-		i++
-	}
-
-	return fileID, nil
-}
-
-func (g *Gasper) collectShares(fileID string) (map[byte][]byte, error) {
-	rawShares := make(map[byte][]byte, 0)
-	for _, store := range g.stores {
-		available, err := store.Available()
-		if err != nil {
-			g.logger.Warn("Store availability check failed", zap.String("StoreName", store.Name()))
-			continue
-		} else if !available {
-			g.logger.Debug("Skipping unavailable store", zap.String("StoreName", store.Name()))
-			continue
-		}
-
-		share, err := store.Get(fileID)
-		if err != nil {
-			if err == storage.ErrShareNotExists {
-				g.logger.Debug("Share for file doesn't exist in this store, trying the next one",
-					zap.String("StoreName", store.Name()))
-				continue
-			}
-
-			return nil, errors.WithMessagef(err, "get share from store '%s'", store.Name())
-		}
-
-		shareIDInt, err := strconv.Atoi(share.ID)
-		if err != nil {
-			return nil, errors.WithMessage(err, "convert share ID from string to int")
-		}
-		rawShares[byte(shareIDInt)] = share.Data
-	}
-
-	return rawShares, nil
 }
 
 func (g *Gasper) validateChecksum(decryptedData []byte, originalChecksum string) error {

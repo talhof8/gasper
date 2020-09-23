@@ -1,6 +1,6 @@
 package stores
 
-import "github.com/gasper/internal/shares"
+import "github.com/gasper/pkg/shares"
 
 // Store lets you store shares.
 type Store interface {

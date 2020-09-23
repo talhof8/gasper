@@ -1,6 +1,8 @@
 package encryption
 
 type Settings struct {
-	On   bool
-	Salt string
+	TurnedOn bool
+	Salt     string
 }
+
+// todo: add validation

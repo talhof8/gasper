@@ -2,8 +2,8 @@ package stores
 
 import (
 	"fmt"
-	"github.com/gasper/internal/shares"
-	"github.com/gasper/pkg/storage"
+	"github.com/gasper/pkg"
+	"github.com/gasper/pkg/shares"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"os"
@@ -87,9 +87,9 @@ func (ls *LocalStore) findFileByID(fileID string) (string, error) {
 	}
 
 	if len(matches) == 0 {
-		return "", storage.ErrShareNotExists
+		return "", pkg.ErrShareNotExists
 	} else if len(matches) > 1 {
-		return "", storage.ErrMoreThanOneMatch
+		return "", pkg.ErrMoreThanOneMatch
 	}
 
 	return matches[0], nil

@@ -8,7 +8,10 @@ import (
 	"os"
 )
 
-var verbose bool
+var (
+	storesFile string
+	verbose    bool
+)
 
 var rootCmd = &cobra.Command{
 	Use:   "gasper",
@@ -31,7 +34,12 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	rootCmd.PersistentFlags().StringVarP(&storesFile, "stores-config", "s", "", "stores configuraion file (required)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "extra verbosity")
+
+	if err := rootCmd.MarkPersistentFlagRequired("stores-config"); err != nil {
+		panic("Failed to mark 'stores-config' flag as required")
+	}
 }
 
 func Execute() {

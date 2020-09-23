@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// todo: make an interface and support other types of encryption.
 type Encryptor struct {
 	settings *Settings
 }
@@ -16,7 +17,7 @@ func NewEncryptor(settings *Settings) *Encryptor {
 }
 
 func (e *Encryptor) Encrypt(data []byte) ([]byte, error) {
-	if !e.settings.On {
+	if !e.settings.TurnedOn {
 		return data, nil
 
 	}
@@ -41,7 +42,7 @@ func (e *Encryptor) Encrypt(data []byte) ([]byte, error) {
 }
 
 func (e *Encryptor) Decrypt(data []byte) ([]byte, error) {
-	if !e.settings.On {
+	if !e.settings.TurnedOn {
 		return data, nil
 	}
 
