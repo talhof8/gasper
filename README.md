@@ -1,4 +1,9 @@
+<p align="center">
+  <img src="https://github.com/talhof8/assets/blob/master/logo.png?raw=true" alt="Gasper Logo"/>
+</p>
+
 # Gasper
+
 Back-up your files in a distributed manner, across multiple stores of your choice. 
 Retrieve them at any point, with only a minimum number of them required for retrieval.
 
