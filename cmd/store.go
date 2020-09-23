@@ -63,6 +63,7 @@ var storeCmd = &cobra.Command{
 		for _, share := range sharedFile.Shares {
 			store := stores[i]
 			storeName := store.Name()
+			i++
 
 			zap.L().Debug("Check store availability", zap.String("StoreName", storeName))
 			available, err := store.Available()
@@ -81,8 +82,6 @@ var storeCmd = &cobra.Command{
 					zap.Error(err))
 				continue
 			}
-
-			i++
 		}
 
 		zap.L().Info("Success! Keep the following info for later use", zap.String("FileID", sharedFile.ID),
