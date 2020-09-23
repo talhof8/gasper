@@ -84,7 +84,7 @@ var retrieveCmd = &cobra.Command{
 					continue
 				}
 
-				zap.L().Error("Failed search share in store", zap.String("StoreName", storeName),
+				zap.L().Error("Failed to search share in store", zap.String("StoreName", storeName),
 					zap.Error(err))
 				continue
 			}
