@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/talhof8/assets/blob/master/logo.png?raw=true" alt="Gasper Logo"/>
+  <img src="https://github.com/talhof8/gasper/blob/master/assets/logo.png?raw=true" alt="Gasper Logo"/>
 </p>
 
 # Gasper
