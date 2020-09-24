@@ -9,8 +9,8 @@
 ![](https://img.shields.io/github/license/talhof8/gasper)
 ![](https://img.shields.io/twitter/url?url=https%3A%2F%2Fgithub.com%2Ftalhof8%2Fgasper)
 
-Back-up your files in a distributed manner, across multiple stores of your choice. 
-Retrieve them at any point, with only a minimum number of them required for retrieval.
+Back-up your files in a distributed manner, across multiple stores of your choice, by splitting them to shares. 
+Retrieve them at any point, with only a minimum number of shares required for retrieval.
 
 Gasper is based on the awesome [Shamir's Secret Sharing algorithm](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing). 
 
