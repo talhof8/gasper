@@ -87,13 +87,13 @@ var storeCmd = &cobra.Command{
 			}
 
 			store := stores[i]
-			storeName := store.Name()
+			storeType := store.Type()
 			i++
 
-			zap.L().Debug("Available! Put share in store", zap.String("StoreName", storeName),
+			zap.L().Debug("Available! Put share in store", zap.String("StoreType", storeType),
 				zap.String("ShareID", share.ID))
 			if err := store.Put(share); err != nil {
-				zap.L().Error("Failed to put share in store", zap.String("StoreName", storeName),
+				zap.L().Error("Failed to put share in store", zap.String("StoreType", storeType),
 					zap.Error(err))
 				continue
 			}

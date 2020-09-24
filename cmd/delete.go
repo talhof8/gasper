@@ -36,21 +36,21 @@ var deleteCmd = &cobra.Command{
 		zap.L().Info("Delete shares from stores")
 		for _, store := range gasper.Stores() {
 			store := store
-			storeName := store.Name()
+			storeType := store.Type()
 
 			if skip := checkStoreAvailability(store); skip {
 				continue
 			}
 
-			zap.L().Debug("Available! Delete file from store", zap.String("StoreName", storeName))
+			zap.L().Debug("Available! Delete file from store", zap.String("StoreType", storeType))
 			if err := store.Delete(fileID); err != nil {
 				if err == storesPkg.ErrShareNotExists {
-					zap.L().Debug("No match found in store, trying the next one", zap.String("StoreName",
-						storeName))
+					zap.L().Debug("No match found in store, trying the next one", zap.String("StoreType",
+						storeType))
 					continue
 				}
 
-				zap.L().Error("Failed to delete share from store", zap.String("StoreName", storeName),
+				zap.L().Error("Failed to delete share from store", zap.String("StoreType", storeType),
 					zap.Error(err))
 				continue // Best effort - keep trying other stores...
 			}

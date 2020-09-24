@@ -66,22 +66,22 @@ var retrieveCmd = &cobra.Command{
 		zap.L().Info("Collect shares from stores")
 		for _, store := range gasper.Stores() {
 			store := store
-			storeName := store.Name()
+			storeType := store.Type()
 
 			if skip := checkStoreAvailability(store); skip {
 				continue
 			}
 
-			zap.L().Debug("Available! Search share in store", zap.String("StoreName", storeName))
+			zap.L().Debug("Available! Search share in store", zap.String("StoreType", storeType))
 			share, err := store.Get(fileID)
 			if err != nil {
 				if err == storesPkg.ErrShareNotExists {
-					zap.L().Debug("No match found in store, trying the next one", zap.String("StoreName",
-						storeName))
+					zap.L().Debug("No match found in store, trying the next one", zap.String("StoreType",
+						storeType))
 					continue
 				}
 
-				zap.L().Error("Failed to search share in store", zap.String("StoreName", storeName),
+				zap.L().Error("Failed to search share in store", zap.String("StoreType", storeType),
 					zap.Error(err))
 				continue
 			}

@@ -5,7 +5,7 @@ import "github.com/gasper/pkg/shares"
 // Store lets you store shares.
 type Store interface {
 	// Store name.
-	Name() string
+	Type() string
 
 	// Is store available?
 	// Useful especially for remote stores, such as ftp servers or s3 buckets.
