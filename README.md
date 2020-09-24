@@ -1,4 +1,9 @@
+<p align="center">
+  <img src="https://github.com/talhof8/assets/blob/master/logo.png?raw=true" alt="Gasper Logo"/>
+</p>
+
 # Gasper
+
 Back-up your files in a distributed manner, across multiple stores of your choice. 
 Retrieve them at any point, with only a minimum number of them required for retrieval.
 
@@ -10,12 +15,17 @@ Gasper is based on the awesome [Shamir's Secret Sharing algorithm](https://en.wi
 | ----------------- |-----------------------| --------------------------|
 | `local`      | Store share in a local directory | `directory-path` (string) |
 
-Feel free to open a Pull Request and add your own :)
+Feel free to contribute your own stores - S3, Google Drive, Twitter, FTP, or anything else you'd like :)
 
 ## Installation
 ```
 go get -u github.com/talhof8/gasper
 ```
+
+# Demo
+#### Using local store
+![](assets/demo-local.gif)
+
 
 ## Usage
 #### Store
