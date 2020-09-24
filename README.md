@@ -15,7 +15,7 @@ Gasper is based on the awesome [Shamir's Secret Sharing algorithm](https://en.wi
 | ----------------- |-----------------------| --------------------------|
 | `local`      | Store share in a local directory | `directory-path` (string) |
 
-Feel free to open a Pull Request and add your own :)
+Feel free to contribute your own stores - S3, Google Drive, Twitter, FTP, or anything else you'd like :)
 
 ## Installation
 ```
