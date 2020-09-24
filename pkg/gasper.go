@@ -10,8 +10,10 @@ import (
 	storesPkg "github.com/gasper/pkg/storage/stores"
 	"github.com/pkg/errors"
 	"io/ioutil"
+	"math/rand"
 	"os"
 	"strconv"
+	"time"
 )
 
 // todo: more elegant and efficient way to read & write big files.
@@ -50,7 +52,7 @@ func (g *Gasper) SharesFromFile(filePath string, shareCount, minSharesThreshold 
 		return nil, ErrInvalidSharesThreshold
 	}
 
-	fileID := petname.Generate(fileIDWordCount, fileIDWordSeparator)
+	fileID := g.uniqueFileId()
 
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
@@ -85,6 +87,11 @@ func (g *Gasper) SharesFromFile(filePath string, shareCount, minSharesThreshold 
 		Checksum: hex.EncodeToString(checksum[:]),
 		Shares:   shares,
 	}, nil
+}
+
+func (g *Gasper) uniqueFileId() string {
+	rand.Seed(time.Now().UnixNano())
+	return petname.Generate(fileIDWordCount, fileIDWordSeparator)
 }
 
 // Dumps shared file to a local filesystem destination.
