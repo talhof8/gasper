@@ -22,7 +22,7 @@ func init() {
 	storeCmd.PersistentFlags().Int8VarP(&shareCount, "share-count", "a", 2,
 		"share count (default: 2)")
 	storeCmd.PersistentFlags().Int8VarP(&minSharesThreshold, "shares-threshold", "t", 2,
-		"threshold of minimum shares which can be used retrieving file (default: 2)")
+		"threshold of minimum shares which can be used for retrieval (default: 2)")
 	storeCmd.PersistentFlags().BoolVarP(&encryptionTurnedOn, "encrypt", "e", false,
 		"whether to encrypt file (AES) before storing it (default: false)")
 	storeCmd.PersistentFlags().StringVarP(&encryptionSalt, "salt", "s", "",
