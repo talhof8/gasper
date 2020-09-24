@@ -22,6 +22,11 @@ Feel free to open a Pull Request and add your own :)
 go get -u github.com/talhof8/gasper
 ```
 
+# Demo
+#### Using local store
+![](assets/demo-local.gif)
+
+
 ## Usage
 #### Store
 ```
