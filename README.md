@@ -4,6 +4,11 @@
 
 # Gasper
 
+![](https://img.shields.io/github/issues/talhof8/gasper)
+![](https://img.shields.io/github/stars/talhof8/gasper)
+![](https://img.shields.io/github/license/talhof8/gasper)
+![](https://img.shields.io/twitter/url?url=https%3A%2F%2Fgithub.com%2Ftalhof8%2Fgasper)
+
 Back-up your files in a distributed manner, across multiple stores of your choice. 
 Retrieve them at any point, with only a minimum number of them required for retrieval.
 
