@@ -2,6 +2,7 @@
   <img src="https://github.com/talhof8/gasper/blob/master/assets/logo.png?raw=true" alt="Gasper Logo"/>
 </p>
 
+
 # Gasper
 
 ![](https://img.shields.io/github/issues/talhof8/gasper)
@@ -9,15 +10,20 @@
 ![](https://img.shields.io/github/license/talhof8/gasper)
 ![](https://img.shields.io/twitter/url?url=https%3A%2F%2Fgithub.com%2Ftalhof8%2Fgasper)
 
-Back-up your files in a distributed manner, across multiple stores of your choice, by splitting them to shares. 
+Back-up & encrypt your files in a distributed manner, across multiple stores of your choice, by splitting them to shares. 
 Retrieve them at any point, with only a minimum number of shares required for retrieval.
 
+Each file is being split to multiple shares, all of which are distributed to different destinations defined by you (be it AWS S3, Dropbox, Google Drive, your local filesystem, FTP Server, etc...). You can retrieve your file at any given moment, even if have access to a part of the stores you used for distribution (down to a minimium threshold of your choice). 
+
 Gasper is based on the awesome [Shamir's Secret Sharing algorithm](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing). 
+
+<p align="center">
+  <img src="https://1.bp.blogspot.com/-7_pky8H-2f0/Wj5er1bgd6I/AAAAAAAACQ0/1X5NlcRD5M00SxYdC2ph69F6bbLXrtrFwCLcBGAs/s640/Capture.PNG?raw=true" alt="Shamir's Secret Sharing"/>
+</p>
 
 # Demo
 #### Using local store
 ![](assets/demo-local.gif)
-
 
 ## Supported stores
 
