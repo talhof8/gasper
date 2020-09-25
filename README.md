@@ -27,7 +27,7 @@ Gasper is based on the awesome [Shamir's Secret Sharing algorithm](https://en.wi
 
 Feel free to contribute your own stores - S3, Google Drive, Twitter, FTP, or anything else you'd like :)
 
-### Adding new store
+### Adding a new store
 1. Implement the `Store` interface (`pkg/storage/stores/store.go`):
 
 ```
