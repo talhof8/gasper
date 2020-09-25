@@ -13,7 +13,7 @@
 Back-up & encrypt your files in a distributed manner, across multiple stores of your choice, by splitting them to shares. 
 Retrieve them at any point, with only a minimum number of shares required for retrieval.
 
-Each file is being split to multiple shares, all of which are distributed to different destinations defined by you (be it AWS S3, Dropbox, Google Drive, your local filesystem, FTP Server, etc...). You can retrieve your file at any given moment, even if have access to a part of the stores you used for distribution (down to a minimium threshold of your choice). 
+Each file is being split to multiple shares, all of which are distributed to different destinations defined by you (be it AWS S3, Dropbox, Google Drive, your local filesystem, FTP Server, etc...). You can retrieve your file at any given moment, even if you only have access to a part of the stores you originally used (down to a minimium threshold of your choice). 
 
 Gasper is based on the awesome [Shamir's Secret Sharing algorithm](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing). 
 
