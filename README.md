@@ -19,6 +19,7 @@ Gasper is based on the awesome [Shamir's Secret Sharing algorithm](https://en.wi
 
 <p align="center">
   <img src="https://1.bp.blogspot.com/-7_pky8H-2f0/Wj5er1bgd6I/AAAAAAAACQ0/1X5NlcRD5M00SxYdC2ph69F6bbLXrtrFwCLcBGAs/s640/Capture.PNG?raw=true" alt="Shamir's Secret Sharing"/>
+	Source: <a href="http://robinsnippet.blogspot.com/2017/12/shamirs-secret-sharing-scheme.html">Robin's Snippet blog</a>
 </p>
 
 # Demo
