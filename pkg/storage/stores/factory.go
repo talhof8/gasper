@@ -9,7 +9,10 @@ func FromConfig(config map[string]interface{}) (Store, error) {
 	switch storeType {
 	case TypeLocalStore:
 		return localStore(config)
+	case TypeS3Store:
+		return AmazonS3Store{}
 	}
+
 
 	return nil, ErrInvalidStoreType
 }
