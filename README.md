@@ -40,7 +40,7 @@ Feel free to contribute your own stores - S3, Google Drive, Twitter, FTP, or any
 ```
 // Store lets you store shares.
 type Store interface {
-	// Store name.
+	// Store type.
 	Type() string
 
 	// Is store available?

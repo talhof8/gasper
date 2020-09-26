@@ -4,7 +4,7 @@ import "github.com/gasper/pkg/shares"
 
 // Store lets you store shares.
 type Store interface {
-	// Store name.
+	// Store type.
 	Type() string
 
 	// Is store available?
