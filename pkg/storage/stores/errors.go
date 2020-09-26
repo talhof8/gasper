@@ -11,4 +11,8 @@ var (
 	ErrMissingStoreTypeAttr     = errors.New("missing store type")
 	ErrMissingDirectoryPathAttr = errors.New("missing 'directory-path' attribute")
 	ErrInvalidDirectoryPathAttr = errors.New("invalid 'directory-path' attribute (strings only)")
+	ErrMissingAmazonS3AccessKeyAttr = errors.New("missing 'access-key' attribute")
+	ErrInvalidAmazonS3AccessKeyAttr = errors.New("invalid 'access-key' attribute (strings only)")
+	ErrMissingAmazonS3SecretKeyAttr = errors.New("missing 'secret-key' attribute")
+	ErrInvalidAmazonS3SecretAttr = errors.New("invalid 'secret-key' attribute (strings only)")
 )
