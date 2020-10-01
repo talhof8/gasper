@@ -48,8 +48,17 @@ func amazonS3Store(config map[string]interface{}) (Store, error) {
 
 	s3SecretKey, ok := s3SecretKeyRaw.(string)
 	if !ok {
-		return nil, ErrInvalidAmazonS3SecretAttr
+		return nil, ErrInvalidAmazonS3SecretKeyAttr
 	}
 
-	return NewS3Store(s3AccessKey, s3SecretKey)
+	s3RegionRaw, ok := config["region"]
+	if !ok {
+		return nil, ErrMissingAmazonS3RegionAttr
+	}
+
+	s3Region, ok := s3RegionRaw.(string)
+	if !ok {
+		return nil, ErrInvalidAmazonS3RegionAttr
+	}
+	return NewS3Store(s3AccessKey, s3SecretKey, s3Region)
 }
