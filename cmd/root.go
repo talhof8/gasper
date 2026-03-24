@@ -80,15 +80,15 @@ func extractStores() []storesPkg.Store {
 }
 
 func checkStoreAvailability(store storesPkg.Store) bool {
-	storeName := store.Name()
+	storeType := store.Type()
 
-	zap.L().Debug("Check store availability", zap.String("StoreName", storeName))
+	zap.L().Debug("Check store availability", zap.String("StoreType", storeType))
 	available, err := store.Available()
 	if err != nil {
-		zap.L().Warn("Store availability check failed", zap.String("StoreName", storeName), zap.Error(err))
+		zap.L().Warn("Store availability check failed", zap.String("StoreType", storeType), zap.Error(err))
 		return true
 	} else if !available {
-		zap.L().Debug("Skipping unavailable store", zap.String("StoreName", storeName))
+		zap.L().Debug("Skipping unavailable store", zap.String("StoreType", storeType))
 		return true
 	}
 

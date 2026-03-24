@@ -8,7 +8,7 @@ import (
 func NewLogger(name string, verbose bool) (*zap.Logger, error) {
 	var (
 		logger *zap.Logger
-		err error
+		err    error
 	)
 
 	if verbose {

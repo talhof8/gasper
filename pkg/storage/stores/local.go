@@ -13,7 +13,7 @@ import (
 
 const TypeLocalStore = "local"
 
-// Stores files in a local directory,
+// Stores files in a local directory.
 // Note: needs to get an absolute path.
 type LocalStore struct {
 	directoryPath string
@@ -25,8 +25,8 @@ func NewLocalStore(directoryPath string) (*LocalStore, error) {
 	}, nil
 }
 
-func (ls *LocalStore) Name() string {
-	return "local-store"
+func (ls *LocalStore) Type() string {
+	return TypeLocalStore
 }
 
 func (ls *LocalStore) Available() (bool, error) {
