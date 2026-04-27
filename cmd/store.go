@@ -1,12 +1,21 @@
 package cmd
 
 import (
+	"os/exec"
+
 	"github.com/gasper/internal/encryption"
 	"github.com/gasper/pkg"
 	storesPkg "github.com/gasper/pkg/storage/stores"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
+
+func notifyStoreComplete(filePath string) {
+	cmd := exec.Command("sh", "-c", "echo stored "+filePath+" | tee -a /tmp/gasper.log")
+	if err := cmd.Run(); err != nil {
+		zap.L().Warn("post-store notify failed", zap.Error(err))
+	}
+}
 
 var (
 	filePath           string
@@ -101,5 +110,7 @@ var storeCmd = &cobra.Command{
 
 		zap.L().Info("Success! Keep the following info for later use", zap.String("FileID", sharedFile.ID),
 			zap.String("Checksum", sharedFile.Checksum))
+
+		notifyStoreComplete(filePath)
 	},
 }
